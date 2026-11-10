@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏆 OI Leaderboard — XIV LO Staszic (Etap II & III)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Supabase JS Client z CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Canvas Confetti dla medali -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #070913;
+      --card-bg: rgba(15, 23, 42, 0.72);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #00f2fe;
+      --gold: #fde047;
+      --silver: #e2e8f0;
+      --bronze: #fb923c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.12), transparent 40%),
+                  radial-gradient(circle at 85% 85%, rgba(225, 29, 72, 0.12), transparent 45%),
+                  #070913;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 20px 80px;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+
+    /* NAGŁÓWEK */
+    header {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 27, 75, 0.75));
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(0, 242, 254, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #ffffff, var(--accent), #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sub {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      margin-top: 6px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: #060913;
+      border: none;
+      font-weight: 800;
+      box-shadow: 0 4px 18px rgba(0, 242, 254, 0.35);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    /* KARTY STATYSTYK */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 18px 22px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #f472b6);
+    }
+
+    .stat-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .stat-val {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 6px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-desc {
+      font-size: 12px;
+      color: rgba(226, 232, 240, 0.7);
+      margin-top: 4px;
+    }
+
+    /* ZAKŁADKI */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(139, 92, 246, 0.25));
+      border: 1px solid var(--accent);
+      color: #fff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* TABELA RANKINGOWA */
+    .glass-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(14px);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 14px 18px;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.25);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 16px 18px;
+      font-size: 13.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .rank-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 15px;
+      width: 46px;
+    }
+
+    .rank-1 { color: var(--gold); text-shadow: 0 0 10px rgba(253, 224, 71, 0.4); }
+    .rank-2 { color: var(--silver); }
+    .rank-3 { color: var(--bronze); }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: #060913;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .user-name {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .user-class {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .pts-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--accent);
+    }
+
+    .rating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #fb923c;
+    }
+
+    /* MODAL KONFIGURACJI */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(2, 6, 23, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: #fff;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+    }
+
+    .hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    footer b { color: #f8fafc; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div class="badge-pill">🔥 Oficjalny Leaderboard XIV LO Staszica & Znajomych</div>
+        <h1>🏆 Olimpiada Informatyczna — Leaderboard Live</h1>
+        <p class="sub">Rankingi II etapu, finałów i wirtuali 5h zintegrowane bezpośrednio z rozszerzeniem <b>OI Tracker</b> na VS Code.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="btnSettings">⚙️ Ustawienia połączenia</button>
+        <button class="btn btn-primary" id="btnRefresh">🔄 Odśwież wyniki</button>
+      </div>
+    </header>
+
+    <!-- KARTY STATYSTYK -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Aktywni Zawodnicy</div>
+        <div class="stat-val" id="statUsersCount">0</div>
+        <div class="stat-desc">Zsynchronizowani z VS Code</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Suma Punktów Wszystkich</div>
+        <div class="stat-val" id="statTotalPoints">0</div>
+        <div class="stat-desc">Wbitych punktów w zadaniach OI</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Zadania na 100 pkt</div>
+        <div class="stat-val" id="statFullScore">0</div>
+        <div class="stat-desc">Zrobionych na fulla</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ukończone Wirtuale 5h</div>
+        <div class="stat-val" id="statSimsCount">0</div>
+        <div class="stat-desc">Przeprowadzonych symulacji</div>
+      </div>
+    </div>
+
+    <!-- ZAKŁADKI -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-overall">🏆 Ranking Główny (Punkty & Rating)</button>
+      <button class="tab-btn" data-tab="tab-simulations">⏱️ Ostatnie Wirtuale 5h (Blind Mode)</button>
+    </div>
+
+    <!-- ZAKŁADKA 1: RANKING GŁÓWNY -->
+    <div class="tab-content active" id="tab-overall">
+      <div class="glass-panel">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Zawodnik & Klasa</th>
+              <th>Suma Pkt</th>
+              <th>Setki (100 pkt)</th>
+              <th>Najtrudniejsze zadanie (oi-list)</th>
+              <th>Wirtuale 5h</th>
+              <th>Streak</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Ładowanie rankingu z bazy...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ZAKŁADKA 2: WIRTUALE 5H -->
+    <div class="tab-content" id="tab-simulations">
+      <div class="glass-panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Zawodnik</th>
+              <th>Edycja i Dzień</th>
+              <th>Data</th>
+              <th>Wynik</th>
+              <th>Czas</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="simulationsBody">
+            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Brak zarejestrowanych wirtuali 5h.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      Stworzone przez: <b>Tymek Szymański (3b, Staszic)</b> &amp; <b>Antigravity</b> — Powodzenia na II etapie i w finale OI! 🚀
+    </footer>
+  </div>
+
+  <!-- MODAL KONFIGURACJI SUPABASE -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+      <h2 class="modal-title">⚙️ Konfiguracja Bazy Supabase</h2>
+      <p class="hint" style="margin-bottom:16px">Podaj URL projektu i klucz anonimowy (Anon Key) z konsoli Supabase. Dane są zapisywane w pamięci przeglądarki (localStorage).</p>
+      
+      <div class="form-group">
+        <label>Supabase Project URL:</label>
+        <input type="text" id="cfgUrl" placeholder="https://xyzcompany.supabase.co" />
+      </div>
+
+      <div class="form-group">
+        <label>Supabase Anon Key:</label>
+        <input type="password" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button class="btn" id="btnCancelSettings">Anuluj</button>
+        <button class="btn btn-primary" id="btnSaveSettings">Zapisz i połącz</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Domyślne wartości z localStorage lub konfiguracja demo
+    let supabaseUrl = localStorage.getItem('oi_supabase_url') || '';
+    let supabaseKey = localStorage.getItem('oi_supabase_key') || '';
+    let supabaseClient = null;
+
+    if (supabaseUrl && supabaseKey) {
+      supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    }
+
+    // Modal
+    const modal = document.getElementById('settingsModal');
+    document.getElementById('btnSettings').addEventListener('click', () => {
+      document.getElementById('cfgUrl').value = supabaseUrl;
+      document.getElementById('cfgKey').value = supabaseKey;
+      modal.classList.add('open');
+    });
+    document.getElementById('btnCancelSettings').addEventListener('click', () => modal.classList.remove('open'));
+    document.getElementById('btnSaveSettings').addEventListener('click', () => {
+      supabaseUrl = document.getElementById('cfgUrl').value.trim();
+      supabaseKey = document.getElementById('cfgKey').value.trim();
+      localStorage.setItem('oi_supabase_url', supabaseUrl);
+      localStorage.setItem('oi_supabase_key', supabaseKey);
+      modal.classList.remove('open');
+      if (supabaseUrl && supabaseKey) {
+        supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        loadLeaderboard();
+      }
+    });
+
+    // Zakładki
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Formatowanie czasu ms na czytelny format (np. 3h 42m)
+    function fmtDuration(ms) {
+      if (!ms || ms <= 0) return '0m';
+      const m = Math.floor(ms / 60000);
+      const h = Math.floor(m / 60);
+      const remM = m % 60;
+      return h > 0 ? `${h}h ${remM}m` : `${remM}m`;
+    }
+
+    // Ładowanie danych
+    async function loadLeaderboard() {
+      if (!supabaseClient) {
+        renderDemoData();
+        return;
+      }
+
+      try {
+        // 1. Pobieramy profile posortowane po punktach
+        const { data: profiles, error } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .order('total_points', { ascending: false });
+
+        if (error) throw error;
+
+        // 2. Pobieramy symulacje
+        const { data: sims } = await supabaseClient
+          .from('user_simulations')
+          .select('*, profiles(nickname, school_class, avatar_color)')
+          .order('finished_at', { ascending: false })
+          .limit(20);
+
+        renderProfiles(profiles || []);
+        renderSimulations(sims || []);
+      } catch (err) {
+        console.error('Błąd ładowania danych z Supabase:', err);
+        renderDemoData();
+      }
+    }
+
+    function renderProfiles(list) {
+      const tbody = document.getElementById('leaderboardBody');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Brak zarejestrowanych zawodników. Zsynchronizuj wyniki z VS Code!</td></tr>';
+        return;
+      }
+
+      // Aktualizacja statystyk ogólnych
+      document.getElementById('statUsersCount').textContent = list.length;
+      document.getElementById('statTotalPoints').textContent = list.reduce((a, b) => a + (b.total_points || 0), 0);
+      document.getElementById('statFullScore').textContent = list.reduce((a, b) => a + (b.full_score_tasks || 0), 0);
+      document.getElementById('statSimsCount').textContent = list.reduce((a, b) => a + (b.completed_simulations || 0), 0);
+
+      tbody.innerHTML = list.map((u, i) => {
+        const rank = i + 1;
+        const rankCls = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+        const medal = rank === 1 ? '🥇 ' : rank === 2 ? '🥈 ' : rank === 3 ? '🥉 ' : '';
+        const initial = (u.nickname || 'U').charAt(0).toUpperCase();
+        const ratingHtml = u.highest_task_rating 
+          ? `<span class="rating-badge" style="background:${u.avatar_color || '#00f2fe'}22;color:${u.avatar_color || '#00f2fe'};border:1px solid ${u.avatar_color || '#00f2fe'}44">★ ${u.highest_task_rating} <span style="font-size:11px;opacity:0.8">(${u.highest_task_title || ''})</span></span>`
+          : '<span style="color:var(--text-muted)">—</span>';
+
+        return `<tr>
+          <td class="rank-cell ${rankCls}">${medal}${rank}</td>
+          <td>
+            <div class="user-info">
+              <div class="avatar" style="background:${u.avatar_color || '#00f2fe'}">${initial}</div>
+              <div>
+                <div class="user-name">${u.nickname}</div>
+                <div class="user-class">${u.school_class || 'XIV LO Staszic'}</div>
+              </div>
+            </div>
+          </td>
+          <td class="pts-badge">${u.total_points || 0}</td>
+          <td><b>${u.full_score_tasks || 0}</b></td>
+          <td>${ratingHtml}</td>
+          <td><b>${u.completed_simulations || 0}</b></td>
+          <td><span class="streak-badge">🔥 ${u.streak_days || 1} d.</span></td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderSimulations(sims) {
+      const tbody = document.getElementById('simulationsBody');
+      if (sims.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Brak ukończonych wirtuali 5h.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = sims.map(s => {
+        const u = s.profiles || {};
+        const dateStr = new Date(s.finished_at).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const stageLabel = s.stage === 3 ? 'Finał (E3)' : 'Etap II';
+        const qualBadge = s.qualified_or_medal ? '🏆 Awans / Medal' : '—';
+
+        return `<tr>
+          <td><b>${u.nickname || 'Zawodnik'}</b> <span style="font-size:11.5px;color:var(--text-muted)">(${u.school_class || '3B'})</span></td>
+          <td><b>${s.edition_roman || ''} OI</b> • ${stageLabel} (${(s.day_id || '').toUpperCase()})</td>
+          <td>${dateStr}</td>
+          <td><b style="color:var(--accent)">${s.total_points}</b> / ${s.max_points} pkt</td>
+          <td>${fmtDuration(s.duration_used_ms)}</td>
+          <td><span style="color:#00e676;font-weight:700">${qualBadge}</span></td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Podgląd dla dewelopera / pierwszego uruchomienia
+    function renderDemoData() {
+      const demoUsers = [
+        { nickname: 'Tymek Szymański', school_class: '3B Staszic', avatar_color: '#00f2fe', total_points: 1350, full_score_tasks: 14, highest_task_rating: 6100, highest_task_title: 'Drzewa (drz)', completed_simulations: 4, streak_days: 7 },
+        { nickname: 'Oskar', school_class: '3B Staszic', avatar_color: '#f59e0b', total_points: 1100, full_score_tasks: 11, highest_task_rating: 5600, highest_task_title: 'Podział (ana)', completed_simulations: 3, streak_days: 5 },
+        { nickname: 'Bartek', school_class: '3B Staszic', avatar_color: '#e11d48', total_points: 850, full_score_tasks: 9, highest_task_rating: 4700, highest_task_title: 'Siatka (sss)', completed_simulations: 2, streak_days: 3 }
+      ];
+      renderProfiles(demoUsers);
+    }
+
+    document.getElementById('btnRefresh').addEventListener('click', () => {
+      loadLeaderboard();
+      confetti({ particleCount: 30, spread: 60, origin: { y: 0.85 } });
+    });
+
+    loadLeaderboard();
+  </script>
+</body>
+</html>

@@ -515,14 +515,13 @@
   </div>
 
   <script>
-    // Domyślne wartości z localStorage lub konfiguracja demo
-    let supabaseUrl = localStorage.getItem('oi_supabase_url') || '';
-    let supabaseKey = localStorage.getItem('oi_supabase_key') || '';
-    let supabaseClient = null;
+    // Domyślne wartości: Twój projekt Supabase greatleadboard
+    const DEFAULT_SUPABASE_URL = 'https://btvnyznqphgojcndgekj.supabase.co';
+    const DEFAULT_SUPABASE_KEY = 'sb_publishable_q-p5YfaDbNBckCqvJHzt7A_FknWv4zh';
 
-    if (supabaseUrl && supabaseKey) {
-      supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-    }
+    let supabaseUrl = localStorage.getItem('oi_supabase_url') || DEFAULT_SUPABASE_URL;
+    let supabaseKey = localStorage.getItem('oi_supabase_key') || DEFAULT_SUPABASE_KEY;
+    let supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // Modal
     const modal = document.getElementById('settingsModal');

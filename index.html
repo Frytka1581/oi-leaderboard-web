@@ -564,8 +564,9 @@
 
     // Ładowanie danych
     async function loadLeaderboard() {
+      const tbody = document.getElementById('leaderboardBody');
       if (!supabaseClient) {
-        renderDemoData();
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Brak połączenia z bazą. Skonfiguruj klucz w Ustawieniach.</td></tr>';
         return;
       }
 
@@ -589,7 +590,7 @@
         renderSimulations(sims || []);
       } catch (err) {
         console.error('Błąd ładowania danych z Supabase:', err);
-        renderDemoData();
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:#f87171">Błąd połączenia z bazą: ${err.message || err}</td></tr>`;
       }
     }
 
@@ -659,15 +660,7 @@
       }).join('');
     }
 
-    // Podgląd dla dewelopera / pierwszego uruchomienia
-    function renderDemoData() {
-      const demoUsers = [
-        { nickname: 'Tymek Szymański', school_class: '3B Staszic', avatar_color: '#00f2fe', total_points: 1350, full_score_tasks: 14, highest_task_rating: 6100, highest_task_title: 'Drzewa (drz)', completed_simulations: 4, streak_days: 7 },
-        { nickname: 'Oskar', school_class: '3B Staszic', avatar_color: '#f59e0b', total_points: 1100, full_score_tasks: 11, highest_task_rating: 5600, highest_task_title: 'Podział (ana)', completed_simulations: 3, streak_days: 5 },
-        { nickname: 'Bartek', school_class: '3B Staszic', avatar_color: '#e11d48', total_points: 850, full_score_tasks: 9, highest_task_rating: 4700, highest_task_title: 'Siatka (sss)', completed_simulations: 2, streak_days: 3 }
-      ];
-      renderProfiles(demoUsers);
-    }
+
 
     document.getElementById('btnRefresh').addEventListener('click', () => {
       loadLeaderboard();

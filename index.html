@@ -389,6 +389,168 @@
       line-height: 1.4;
     }
 
+    /* MODAL SZCZEGÓŁÓW ZAWODNIKA */
+    .modal-player {
+      max-width: 780px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .modal-player-header {
+      padding: 24px 28px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.7));
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .user-hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar-lg {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      font-size: 24px;
+    }
+
+    .user-name-lg {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .user-class-lg {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .player-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      padding: 16px 28px;
+      background: rgba(0, 0, 0, 0.25);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .pstat-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      text-align: center;
+    }
+
+    .pstat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .pstat-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .pm-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 12px 28px;
+      background: rgba(15, 23, 42, 0.6);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .pm-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pm-tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .pm-tab-btn.active {
+      color: #fff;
+      background: rgba(0, 242, 254, 0.15);
+      border-color: rgba(0, 242, 254, 0.3);
+    }
+
+    .pm-tab-content {
+      display: none;
+      padding: 20px 28px 28px;
+      overflow-y: auto;
+      max-height: 48vh;
+    }
+
+    .pm-tab-content.active { display: block; }
+
+    .task-card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+
+    .task-card-row:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(0, 242, 254, 0.25);
+    }
+
+    .player-row {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .player-row:hover td {
+      background: rgba(0, 242, 254, 0.06) !important;
+    }
+
     footer {
       text-align: center;
       margin-top: 48px;
@@ -489,6 +651,71 @@
     <footer>
       Stworzone przez: <b>Tymek Szymański (3b, Staszic)</b> &amp; <b>Antigravity</b> — Powodzenia na II etapie i w finale OI! 🚀
     </footer>
+  </div>
+
+  <!-- MODAL SZCZEGÓŁÓW ZAWODNIKA -->
+  <div class="modal-backdrop" id="playerModal">
+    <div class="modal-box modal-player">
+      <div class="modal-player-header">
+        <div class="user-hero">
+          <div class="avatar avatar-lg" id="pmAvatar">T</div>
+          <div>
+            <div class="user-name-lg" id="pmNickname">Tymek Szymański</div>
+            <div class="user-class-lg">
+              <span id="pmRank" style="font-weight:700;color:var(--accent)">#1</span> • <span id="pmClass">3B Staszic</span> • Ostatnia aktywność: <span id="pmLastActive" style="color:#e2e8f0">dziś</span>
+            </div>
+          </div>
+        </div>
+        <button class="modal-close" id="btnClosePlayerModal" title="Zamknij">✕</button>
+      </div>
+
+      <div class="player-stats-grid">
+        <div class="pstat-card">
+          <div class="pstat-val" id="pmTotalPoints">800</div>
+          <div class="pstat-lbl">Suma Pkt</div>
+        </div>
+        <div class="pstat-card">
+          <div class="pstat-val" id="pmFullScore">8</div>
+          <div class="pstat-lbl">Setki (100 pkt)</div>
+        </div>
+        <div class="pstat-card">
+          <div class="pstat-val" id="pmHighestRating">★ 7600</div>
+          <div class="pstat-lbl">Max Rating</div>
+        </div>
+        <div class="pstat-card">
+          <div class="pstat-val" id="pmSimsCount">0</div>
+          <div class="pstat-lbl">Wirtuale 5h</div>
+        </div>
+        <div class="pstat-card">
+          <div class="pstat-val" id="pmStreak">🔥 3 d.</div>
+          <div class="pstat-lbl">Streak Dni</div>
+        </div>
+      </div>
+
+      <div class="pm-tabs">
+        <button class="pm-tab-btn active" data-pm-tab="pmTasksTab">📚 Zrobione Zadania (<span id="pmTasksCount">0</span>)</button>
+        <button class="pm-tab-btn" data-pm-tab="pmSimsTab">⏱️ Wirtuale 5h (<span id="pmSimsCountTab">0</span>)</button>
+        <button class="pm-tab-btn" data-pm-tab="pmActivityTab">📅 Dni &amp; Aktywność</button>
+      </div>
+
+      <div class="pm-tab-content active" id="pmTasksTab">
+        <div id="pmTasksList" style="display:flex;flex-direction:column;gap:8px;">
+          <!-- dynamicznie ładowane zadania -->
+        </div>
+      </div>
+
+      <div class="pm-tab-content" id="pmSimsTab">
+        <div id="pmSimsList">
+          <!-- dynamicznie ładowane symulacje -->
+        </div>
+      </div>
+
+      <div class="pm-tab-content" id="pmActivityTab">
+        <div id="pmActivityBox">
+          <!-- info o aktywności -->
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL KONFIGURACJI SUPABASE -->
@@ -594,7 +821,22 @@
       }
     }
 
+    let currentProfiles = [];
+
+    function toRoman(num) {
+      if (!num) return '';
+      const roman = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
+      let str = '';
+      for (let i of Object.keys(roman)) {
+        let q = Math.floor(num / roman[i]);
+        num -= q * roman[i];
+        str += i.repeat(q);
+      }
+      return str;
+    }
+
     function renderProfiles(list) {
+      currentProfiles = list;
       const tbody = document.getElementById('leaderboardBody');
       if (list.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Brak zarejestrowanych zawodników. Zsynchronizuj wyniki z VS Code!</td></tr>';
@@ -616,13 +858,13 @@
           ? `<span class="rating-badge" style="background:${u.avatar_color || '#00f2fe'}22;color:${u.avatar_color || '#00f2fe'};border:1px solid ${u.avatar_color || '#00f2fe'}44">★ ${u.highest_task_rating} <span style="font-size:11px;opacity:0.8">(${u.highest_task_title || ''})</span></span>`
           : '<span style="color:var(--text-muted)">—</span>';
 
-        return `<tr>
+        return `<tr class="player-row" onclick="openPlayerModal('${u.user_key}')" title="Kliknij, aby otworzyć statystyki, listę zadań i wirtuale ${u.nickname}">
           <td class="rank-cell ${rankCls}">${medal}${rank}</td>
           <td>
             <div class="user-info">
               <div class="avatar" style="background:${u.avatar_color || '#00f2fe'}">${initial}</div>
               <div>
-                <div class="user-name">${u.nickname}</div>
+                <div class="user-name">${u.nickname} <span style="font-size:11px;opacity:0.7">🔍</span></div>
                 <div class="user-class">${u.school_class || 'XIV LO Staszic'}</div>
               </div>
             </div>
@@ -635,6 +877,169 @@
         </tr>`;
       }).join('');
     }
+
+    async function openPlayerModal(userKey) {
+      const pModal = document.getElementById('playerModal');
+      const user = currentProfiles.find(p => p.user_key === userKey) || { user_key: userKey, nickname: userKey };
+      const rankIdx = currentProfiles.findIndex(p => p.user_key === userKey);
+      const rank = rankIdx >= 0 ? rankIdx + 1 : 1;
+
+      // Nagłówek profilu
+      document.getElementById('pmAvatar').textContent = (user.nickname || 'U').charAt(0).toUpperCase();
+      document.getElementById('pmAvatar').style.background = user.avatar_color || '#00f2fe';
+      document.getElementById('pmNickname').textContent = user.nickname || 'Zawodnik';
+      document.getElementById('pmRank').textContent = `#${rank}`;
+      document.getElementById('pmClass').textContent = user.school_class || 'XIV LO Staszic';
+      document.getElementById('pmLastActive').textContent = user.last_active_at ? new Date(user.last_active_at).toLocaleDateString('pl-PL') : 'dziś';
+
+      // Pigułki statystyk
+      document.getElementById('pmTotalPoints').textContent = user.total_points || 0;
+      document.getElementById('pmFullScore').textContent = user.full_score_tasks || 0;
+      document.getElementById('pmHighestRating').textContent = user.highest_task_rating ? `★ ${user.highest_task_rating}` : '—';
+      document.getElementById('pmSimsCount').textContent = user.completed_simulations || 0;
+      document.getElementById('pmStreak').textContent = `🔥 ${user.streak_days || 1} d.`;
+
+      // Reset zakładek
+      document.querySelectorAll('.pm-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.pm-tab-content').forEach(c => c.classList.remove('active'));
+      const defaultTabBtn = document.querySelector('.pm-tab-btn[data-pm-tab="pmTasksTab"]');
+      if (defaultTabBtn) defaultTabBtn.classList.add('active');
+      const defaultTabContent = document.getElementById('pmTasksTab');
+      if (defaultTabContent) defaultTabContent.classList.add('active');
+
+      // Ładowanie zadań
+      const tasksBox = document.getElementById('pmTasksList');
+      tasksBox.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted)">Wczytywanie rozwiązanych zadań...</div>';
+
+      // Ładowanie wirtuali
+      const simsBox = document.getElementById('pmSimsList');
+      simsBox.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted)">Wczytywanie wirtuali...</div>';
+
+      // Aktywność
+      const actBox = document.getElementById('pmActivityBox');
+      actBox.innerHTML = `
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;">
+          <h4 style="margin-bottom:10px;font-size:15px;color:#fff;">🔥 Passa nauki i aktywność</h4>
+          <p style="color:var(--text-muted);font-size:13px;line-height:1.5;">
+            Aktualna seria aktywnych dni: <b style="color:#fb923c">${user.streak_days || 1} dni z rzędu</b>.<br/>
+            Ostatnia zarejestrowana aktywność w VS Code: <b style="color:#fff">${user.last_active_at ? new Date(user.last_active_at).toLocaleString('pl-PL') : 'Dzisiaj'}</b>.<br/>
+            Suma wbitych punktów we wszystkich zadaniach OI: <b style="color:var(--accent)">${user.total_points || 0} pkt</b> (w tym <b>${user.full_score_tasks || 0}</b> zadań na 100/100 pkt).
+          </p>
+          <div style="margin-top:14px;padding:12px;background:rgba(0,242,254,0.06);border-left:3px solid var(--accent);border-radius:6px;font-size:12.5px;color:#cbd5e1;">
+            💡 <i>„Nie ma trudnych zadań, są tylko takie do których nie napisałeś jeszcze wystarczająco dużo brudów i testów.”</i>
+          </div>
+        </div>
+      `;
+
+      pModal.classList.add('open');
+
+      try {
+        // Pobierz zadania z bazy
+        const { data: tasks, error: tErr } = await supabaseClient
+          .from('user_tasks')
+          .select('*')
+          .eq('user_key', userKey)
+          .order('score', { ascending: false })
+          .order('rating', { ascending: false });
+
+        if (tErr) throw tErr;
+
+        document.getElementById('pmTasksCount').textContent = tasks ? tasks.length : 0;
+
+        if (!tasks || tasks.length === 0) {
+          tasksBox.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted)">Brak zadań w bazie. Wciśnij <b>Zsynchronizuj z Leaderboardem</b> w VS Code!</div>';
+        } else {
+          tasksBox.innerHTML = tasks.map(t => {
+            const roman = t.edition_number ? toRoman(t.edition_number) : '';
+            const stageLabel = t.stage === 3 ? 'Finał' : 'Etap II';
+            const edBadge = roman ? `${roman} OI (${stageLabel})` : stageLabel;
+            const scoreColor = t.score === 100 ? '#00e676' : '#00f2fe';
+            const ratingHtml = t.rating ? `<span class="rating-badge" style="background:${t.rating_color || '#f59e0b'}22;color:${t.rating_color || '#f59e0b'};border:1px solid ${t.rating_color || '#f59e0b'}44">★ ${t.rating}</span>` : '';
+            const problemKey = t.problem_key || t.short_code;
+            const szkopulUrl = problemKey ? `https://szkopul.edu.pl/problemset/problem/${problemKey}/site/` : null;
+
+            return `
+              <div class="task-card-row">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--accent);font-size:13px;background:rgba(0,242,254,0.1);padding:4px 8px;border-radius:6px;border:1px solid rgba(0,242,254,0.2);">
+                    ${(t.short_code || '').toUpperCase()}
+                  </div>
+                  <div>
+                    <div style="font-weight:700;font-size:14px;color:#fff;">${t.title || t.short_code}</div>
+                    <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+                      ${edBadge}
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  ${ratingHtml}
+                  <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:13px;color:${scoreColor};background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);">
+                    ${t.score}/100 pkt
+                  </div>
+                  ${szkopulUrl ? `<a href="${szkopulUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);text-decoration:none;font-size:13px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.04);transition:all 0.15s;" onmouseover="this.style.color='#00f2fe'" onmouseout="this.style.color='var(--text-muted)'" title="Otwórz na Szkopule">🔗</a>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Pobierz wirtuale z bazy
+        const { data: sims, error: sErr } = await supabaseClient
+          .from('user_simulations')
+          .select('*')
+          .eq('user_key', userKey)
+          .order('finished_at', { ascending: false });
+
+        document.getElementById('pmSimsCountTab').textContent = sims ? sims.length : 0;
+
+        if (!sims || sims.length === 0) {
+          simsBox.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted)">Brak zarejestrowanych symulacji 5h dla tego zawodnika.</div>';
+        } else {
+          simsBox.innerHTML = sims.map(s => {
+            const dateStr = new Date(s.finished_at).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            const stageLabel = s.stage === 3 ? 'Finał (E3)' : 'Etap II';
+            const qualBadge = s.qualified_or_medal ? '<span style="color:#00e676;font-weight:700">🏆 Awans / Medal</span>' : '<span style="color:var(--text-muted)">—</span>';
+            return `
+              <div class="task-card-row">
+                <div>
+                  <div style="font-weight:700;font-size:14px;color:#fff;">${s.edition_roman || ''} OI • ${stageLabel} (${(s.day_id || '').toUpperCase()})</div>
+                  <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">Ukończono: ${dateStr} • Czas: ${fmtDuration(s.duration_used_ms)}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px;color:var(--accent)">
+                    ${s.total_points} / ${s.max_points} pkt
+                  </div>
+                  ${qualBadge}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Błąd pobierania szczegółów gracza:', err);
+        tasksBox.innerHTML = `<div style="color:#f87171;padding:12px;">Błąd pobierania zadań: ${err.message || err}</div>`;
+      }
+    }
+
+    // Obsługa zakładek w modalu gracza
+    document.querySelectorAll('.pm-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pm-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.pm-tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const target = document.getElementById(btn.dataset.pmTab);
+        if (target) target.classList.add('active');
+      });
+    });
+
+    // Zamykanie modalu gracza
+    const playerModal = document.getElementById('playerModal');
+    document.getElementById('btnClosePlayerModal').addEventListener('click', () => {
+      playerModal.classList.remove('open');
+    });
+    playerModal.addEventListener('click', (e) => {
+      if (e.target === playerModal) playerModal.classList.remove('open');
+    });
 
     function renderSimulations(sims) {
       const tbody = document.getElementById('simulationsBody');
@@ -659,8 +1064,6 @@
         </tr>`;
       }).join('');
     }
-
-
 
     document.getElementById('btnRefresh').addEventListener('click', () => {
       loadLeaderboard();

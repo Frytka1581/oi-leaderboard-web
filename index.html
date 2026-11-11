@@ -726,12 +726,12 @@
       
       <div class="form-group">
         <label>Supabase Project URL:</label>
-        <input type="text" id="cfgUrl" placeholder="https://xyzcompany.supabase.co" />
+        <input type="text" id="cfgUrl" placeholder="https://btvnyznqphgojcndgekj.supabase.co" />
       </div>
 
       <div class="form-group">
-        <label>Supabase Anon Key:</label>
-        <input type="password" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+        <label>Supabase Publishable Key:</label>
+        <input type="password" id="cfgKey" placeholder="sb_publishable_q-p5YfaDbNBckCqvJHzt7A_FknWv4zh" />
       </div>
 
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
@@ -742,12 +742,21 @@
   </div>
 
   <script>
-    // Domyślne wartości: Twój projekt Supabase greatleadboard
+    // Oficjalna automatyczna konfiguracja projektu Supabase
     const DEFAULT_SUPABASE_URL = 'https://btvnyznqphgojcndgekj.supabase.co';
     const DEFAULT_SUPABASE_KEY = 'sb_publishable_q-p5YfaDbNBckCqvJHzt7A_FknWv4zh';
 
-    let supabaseUrl = localStorage.getItem('oi_supabase_url') || DEFAULT_SUPABASE_URL;
-    let supabaseKey = localStorage.getItem('oi_supabase_key') || DEFAULT_SUPABASE_KEY;
+    let supabaseUrl = localStorage.getItem('oi_supabase_url');
+    let supabaseKey = localStorage.getItem('oi_supabase_key');
+
+    // Wymuszenie oficjalnego projektu jeśli klucz w pamięci podręcznej jest pusty, przedawniony lub błędny
+    if (!supabaseUrl || !supabaseKey || !supabaseKey.startsWith('sb_publishable_q-p5YfaDbNBckCqvJHzt7A_FknWv4zh')) {
+      supabaseUrl = DEFAULT_SUPABASE_URL;
+      supabaseKey = DEFAULT_SUPABASE_KEY;
+      localStorage.setItem('oi_supabase_url', supabaseUrl);
+      localStorage.setItem('oi_supabase_key', supabaseKey);
+    }
+
     let supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // Modal
